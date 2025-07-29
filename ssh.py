@@ -1,67 +1,99 @@
 # lib
-import logging # loggin the ip @ username and pass
-from logging.handlers import RotatingFileHandler # loggin the ip @ username and pass
+import logging 
+from logging.handlers import RotatingFileHandler 
 import socket
 import threading
 import paramiko
 
-# Logging
-pipe = logging.getLogger("ssh_server")
-pipe.setLevel(logging.INFO) # WHAT AM I DOING?
+SSH_BANNER = "SSH-2.0-OpenSSH_7.9\r\n" # fake banner
+host_key = paramiko.RSAKey(filename='server.key')
 
-pipe_handler = RotatingFileHandler("ssh_server.log", maxBytes=10000, backupCount=5) # file name
-pipe_handler.setFormatter(logging.Formatter('%(message)s')) # ?
+# 1.Logging
+logger = logging.getLogger("ssh_server")
+logger.setLevel(logging.INFO) 
 
-pipe.addHandler(pipe_handler)
+pipe_handler = RotatingFileHandler("ssh_server.log", maxBytes=10000, backupCount=5)
+formater = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s') 
+pipe_handler.setFormatter(formater) 
+
+logger.addHandler(pipe_handler)
 
 # for bots commands
 creds = logging.getLogger("creds_ssh_server")
-creds.setLevel(logging.INFO) # WHAT AM I DOING?
+creds.setLevel(logging.INFO) 
 
-creds_handler = RotatingFileHandler("creds_ssh_server.log", maxBytes=10000, backupCount=5) # file name
-creds_handler.setFormatter(logging.Formatter('%(message)s')) # ?
+creds_handler = RotatingFileHandler("creds_ssh_server.log", maxBytes=10000, backupCount=5) 
+creds_handler.setFormatter(formater) 
 
 creds.addHandler(creds_handler)
 
 # 1. clinet:$ ssh outhmane@192.168.1.101
 
-# building a shell
+# 2.building a shell
 
 def shell(channel, ip):
-    channel.send(b'outhmane$')
+    
+    prompt = b'outhmane$ '
+    channel.send(b'\nWelcome to the SSH honeypot!\n')
+    channel.send(prompt)
+
     command = b''
+
     while True:
-        msg = channel.recv(1024)
-        channel.send(msg)
+        try:
+            msg = channel.recv(1024)
 
-        if not msg:
-            channel.close()
+            if not msg:
+                break
+            
+            command += msg
 
-        command += msg
+            if msg in [b'\r', b'\n']:
+                stripped_cmd = command.strip()
+                #if stripped_cmd:
+                # logger.info(f"[{ip}] Command : {stripped_cmd}")
+                # creds.info(f"[{ip}] Command : {stripped_cmd}")
+            
+                if stripped_cmd == b'exit':
+                    channel.send(b'\nGoodbye!\n')
+                    channel.close()
 
-        if msg == b'\r':
-            if command.strip() == b'exit':
-                response = b'\n Goodbye!'
-                channel.close()
-            elif command.strip() == b'pwd':
-                response = b'\n' + b'\\usr\local\\' + '\r\n'
-            elif command.strip() == b'whoami':
-                response = b"\n" + b"outhmane" + b"\n"
-            # building commands
-            elif command.strip() == b'ls':
-                response = b"\n" + b"file.txt" + b"\n"
-            elif command.strip() == b'cat file.txt':
-                response = b"\n" + b"hey this is an empty file" + b"\n"
+                elif stripped_cmd == b'pwd':
+                    response = b'\n/usr/local/\n'
+                
+                elif stripped_cmd == b'whoami':
+                    response = b"\nouthmane\n"
+                # building commands
+                
+                elif stripped_cmd == b'ls':
+                    response = b"\nfile.txt\n" 
+
+                elif stripped_cmd == b'help':
+                    response = b"\nAvailable commands:\n - pwd \n - whoami \n - ls \n - cat file.txt \n - help \n - exit\n" 
+                
+                elif stripped_cmd == b'cat file.txt':
+                    response = b"\nhey this is an empty file\n"
+                
+                else:
+                    response = b'\nCommand not found: ' + stripped_cmd + b'\n'
+                
+                channel.send(response)
+                channel.send(prompt)
+                command = b''
+            
             else:
-                response = b'\n' + bytes(command.strip()) + b'\n'
-        channel.send(response)
-        channel.send(b'outhmane$')
-        command = b''
+                command += msg
 
-# ssh server ??
+        except Exception as e:
+            #logger.error(f"Error processing command from {ip}: {e}")
+            channel.send(b'\nError: ' + str(e).encode() + b'\n')
+            break
+
+    channel.close()
 
 class Server(paramiko.ServerInterface):
     def __init__(self, client_ip, input_username=None, input_password=None):
+        self.event = threading.Event()
         self.client_ip = client_ip
         self.input_username= input_username
         self.input_password = input_password
@@ -75,10 +107,12 @@ class Server(paramiko.ServerInterface):
     
     def check_auth_password(self, username, password):
         if self.username is not None and self.password is not None:
-            if username == 'username' and password == 'password':
+            if username == self.input_username and password == self.input_password:
                 return paramiko.AUTH_SUCCESSFUL
             else:
                 return paramiko.AUTH_FAILED
+        else:
+            return paramiko.AUTH_SUCCESSFUL
 
     def check_channel_shell_request(self, channel):
         self.event.set()
@@ -91,8 +125,61 @@ class Server(paramiko.ServerInterface):
         command = str(command)
         return True
     
+def client_handle(client,addr,username,password):
+    client_ip = addr[0]
+    print(f"[+] Connection from {client_ip}")
+    try:
+        
+        transport = paramiko.Transport(client)
+        transport.local_version = SSH_BANNER
+        server = Server(client_ip=client_ip, input_username=username, input_password=password)
+
+        transport.add_server_key(host_key)
+        transport.start_server(server=server)
+
+        channel = transport.accept(100)
+
+        if channel is None:
+            print(f"[-] Failed to open channel from {client_ip}")
+            
+        standard_banner = "Welcome to the CLI!\n"
+        channel.send(standard_banner)
+        shell(channel, client_ip)
+        
+    except Exception as error:
+        print("Error occurred:")
+        print(error)
+        
+    finally:
+        try:
+            transport.close()
+        except Exception as e:
+            print("Error occurred while closing transport:")
+            print(e)
+        finally:
+            client.close()
+
+def honeypot(ip_add, port, username, password, tarpit):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind((ip_add, port))
+    sock.listen(100)
+    print(f"[*] Listening for connections on {ip_add}:{port}")
+
+    while True:
+        try:
+            client, addr = sock.accept()
+            print(f"[+] Accepted connection from {addr}")
+            thread = threading.Thread(target=client_handle, args=(client, addr, username, password, tarpit))
+            thread.start()
+
+        except Exception as e:
+            print("Error occurred:")
+            print(e)
 
 
+
+honeypot('127.0.0.1', 2223, 'otman','12345678', tarpit=False)
 """
 server = "192.168.1.101"
 port = 22
