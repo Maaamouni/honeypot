@@ -5,7 +5,7 @@ import socket
 import threading
 import paramiko
 
-SSH_BANNER = "SSH-2.0-OpenSSH_7.9\r\n" # fake banner
+SSH_BANNER = "SSH-2.0-OpenSSH_8.6" # fake banner
 host_key = paramiko.RSAKey(filename='server.key')
 
 # 1.Logging
@@ -34,7 +34,7 @@ creds.addHandler(creds_handler)
 def shell(channel, ip):
     
     prompt = b'outhmane$ '
-    channel.send(b'\nWelcome to the SSH honeypot!\n')
+    channel.send(b'You have access to the SSH Server!\n')
     channel.send(prompt)
 
     command = b''
@@ -42,44 +42,43 @@ def shell(channel, ip):
     while True:
         try:
             msg = channel.recv(1024)
+            channel.send(msg)
 
             if not msg:
                 break
             
-            command += msg
-
             if msg in [b'\r', b'\n']:
                 stripped_cmd = command.strip()
-                #if stripped_cmd:
-                # logger.info(f"[{ip}] Command : {stripped_cmd}")
-                # creds.info(f"[{ip}] Command : {stripped_cmd}")
-            
-                if stripped_cmd == b'exit':
-                    channel.send(b'\nGoodbye!\n')
-                    channel.close()
+                if stripped_cmd:
+                    logger.info(f"[{ip}] Command : {stripped_cmd}")
+                    creds.info(f"[{ip}] Command : {stripped_cmd}")
+                
+                    if stripped_cmd == b'exit':
+                        channel.send(b'\nGoodbye!\n')
+                        channel.close()
 
-                elif stripped_cmd == b'pwd':
-                    response = b'\n/usr/local/\n'
-                
-                elif stripped_cmd == b'whoami':
-                    response = b"\nouthmane\n"
-                # building commands
-                
-                elif stripped_cmd == b'ls':
-                    response = b"\nfile.txt\n" 
+                    elif stripped_cmd == b'pwd':
+                        response = b'\n/usr/local/\n'
+                    
+                    elif stripped_cmd == b'whoami':
+                        response = b"\nouthmane\n"
+                    # building commands
+                    
+                    elif stripped_cmd == b'ls':
+                        response = b"\nfile.txt\n" 
 
-                elif stripped_cmd == b'help':
-                    response = b"\nAvailable commands:\n - pwd \n - whoami \n - ls \n - cat file.txt \n - help \n - exit\n" 
-                
-                elif stripped_cmd == b'cat file.txt':
-                    response = b"\nhey this is an empty file\n"
-                
-                else:
-                    response = b'\nCommand not found: ' + stripped_cmd + b'\n'
-                
-                channel.send(response)
-                channel.send(prompt)
-                command = b''
+                    elif stripped_cmd == b'help':
+                        response = b"\nAvailable commands:\n - pwd \n - whoami \n - ls \n - cat file.txt \n - help \n - exit\n" 
+                    
+                    elif stripped_cmd == b'cat file.txt':
+                        response = b"\nhey this is an empty file\n"
+                    
+                    else:
+                        response = b'\nCommand not found: ' + stripped_cmd + b'\n'
+                    
+                    channel.send(response)
+                    channel.send(prompt)
+                    command = b''
             
             else:
                 command += msg
@@ -91,28 +90,35 @@ def shell(channel, ip):
 
     channel.close()
 
+# 3. SSH Server
+
 class Server(paramiko.ServerInterface):
     def __init__(self, client_ip, input_username=None, input_password=None):
-        self.event = threading.Event()
         self.client_ip = client_ip
         self.input_username= input_username
         self.input_password = input_password
+        self.event = threading.Event()
 
-    def check_channel_request(self, kind, chanid):
-        if kind == 'session':
-            return paramiko.OPEN_SUCCEDED
-        
-    def get_allowed_auths(self):
-        return "password"
-    
+    # Aunthenticate clients
     def check_auth_password(self, username, password):
-        if self.username is not None and self.password is not None:
+        if self.input_username is not None and self.input_password is not None:
             if username == self.input_username and password == self.input_password:
                 return paramiko.AUTH_SUCCESSFUL
             else:
                 return paramiko.AUTH_FAILED
+
+    # Accept channel requests
+
+    def check_channel_request(self, kind, chanid):
+        if kind == 'session':
+            return paramiko.OPEN_SUCCEEDED
         else:
-            return paramiko.AUTH_SUCCESSFUL
+            return paramiko.OPEN_FAILED_ADMINISTRATIVELY_PROHIBITED
+
+    def get_allowed_auths(self,username):
+        return "password"
+
+    # shell request
 
     def check_channel_shell_request(self, channel):
         self.event.set()
@@ -125,15 +131,21 @@ class Server(paramiko.ServerInterface):
         command = str(command)
         return True
     
+#4. client handle
+
 def client_handle(client,addr,username,password):
+    #logger.info(f"[+] Connection from {addr} with username: {username} and password: {password}")
     client_ip = addr[0]
     print(f"[+] Connection from {client_ip}")
+    
+    logger.info(f"[+] Connection from {client_ip}")
+    creds.info(f"[+] Connection from {client_ip} with username: {username} and password: {password}") 
+    
     try:
-        
         transport = paramiko.Transport(client)
         transport.local_version = SSH_BANNER
+        
         server = Server(client_ip=client_ip, input_username=username, input_password=password)
-
         transport.add_server_key(host_key)
         transport.start_server(server=server)
 
@@ -141,6 +153,7 @@ def client_handle(client,addr,username,password):
 
         if channel is None:
             print(f"[-] Failed to open channel from {client_ip}")
+            return
             
         standard_banner = "Welcome to the CLI!\n"
         channel.send(standard_banner)
@@ -159,7 +172,7 @@ def client_handle(client,addr,username,password):
         finally:
             client.close()
 
-def honeypot(ip_add, port, username, password, tarpit):
+def honeypot(ip_add, port, username, password):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind((ip_add, port))
@@ -170,7 +183,7 @@ def honeypot(ip_add, port, username, password, tarpit):
         try:
             client, addr = sock.accept()
             print(f"[+] Accepted connection from {addr}")
-            thread = threading.Thread(target=client_handle, args=(client, addr, username, password, tarpit))
+            thread = threading.Thread(target=client_handle, args=(client, addr, username, password))
             thread.start()
 
         except Exception as e:
@@ -179,7 +192,7 @@ def honeypot(ip_add, port, username, password, tarpit):
 
 
 
-honeypot('127.0.0.1', 2223, 'otman','12345678', tarpit=False)
+honeypot('127.0.0.1', 2223, 'otman','12345678')
 """
 server = "192.168.1.101"
 port = 22

@@ -1,0 +1,25 @@
+2025-07-30 11:39:25,623 - INFO - [127.0.0.1] Command : b'pwd'
+2025-07-30 11:39:29,147 - INFO - [127.0.0.1] Command : b'whoami'
+2025-07-30 11:39:31,579 - INFO - [127.0.0.1] Command : b'ls'
+2025-07-30 11:39:38,265 - INFO - [127.0.0.1] Command : b'cat filte\x7f\x7fe\x7f\x7f\x7f'
+2025-07-30 11:39:43,503 - INFO - [127.0.0.1] Command : b'cat file.txt'
+2025-07-30 11:39:45,483 - INFO - [127.0.0.1] Command : b'exit'
+2025-07-30 12:33:34,339 - INFO - [+] Connection from 127.0.0.1 with username: otman and password: 12345678
+2025-07-30 12:33:44,684 - INFO - [127.0.0.1] Command : b'whoami'
+2025-07-30 12:35:04,636 - INFO - [+] Connection from 127.0.0.1 with username: otman and password: 12345678
+2025-07-30 12:35:19,877 - INFO - [127.0.0.1] Command : b'whoami'
+2025-07-30 12:37:05,180 - INFO - [127.0.0.1] Command : b'exit'
+2025-07-30 12:37:08,661 - INFO - [+] Connection from 127.0.0.1 with username: otman and password: 12345678
+2025-07-30 12:37:24,820 - INFO - [+] Connection from 127.0.0.1 with username: otman and password: 12345678
+2025-07-30 12:37:52,814 - INFO - [+] Connection from 127.0.0.1 with username: otman and password: 12345678
+2025-07-30 12:37:59,990 - INFO - [127.0.0.1] Command : b'ls'
+2025-07-30 12:39:11,431 - INFO - [127.0.0.1] Command : b'whoami'
+2025-07-30 12:39:12,868 - INFO - [127.0.0.1] Command : b'help'
+2025-07-30 12:39:27,901 - INFO - [127.0.0.1] Command : b'help'
+2025-07-30 12:39:30,500 - INFO - [127.0.0.1] Command : b'pwd'
+2025-07-30 12:39:33,855 - INFO - [127.0.0.1] Command : b'send'
+2025-07-30 12:39:37,003 - INFO - [127.0.0.1] Command : b'send file'
+2025-07-30 12:39:42,840 - INFO - [127.0.0.1] Command : b'cel\x7f\x7fc'
+2025-07-30 12:39:45,807 - INFO - [127.0.0.1] Command : b'c\x7f\x7f'
+2025-07-30 12:39:53,367 - INFO - [127.0.0.1] Command : b'python3 exploit.py'
+2025-07-30 12:39:55,635 - INFO - [127.0.0.1] Command : b'exit'

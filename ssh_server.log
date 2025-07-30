@@ -1,0 +1,25 @@
+2025-07-30 11:39:25,623 - INFO - [127.0.0.1] Command : b'pwd'
+2025-07-30 11:39:29,147 - INFO - [127.0.0.1] Command : b'whoami'
+2025-07-30 11:39:31,579 - INFO - [127.0.0.1] Command : b'ls'
+2025-07-30 11:39:38,264 - INFO - [127.0.0.1] Command : b'cat filte\x7f\x7fe\x7f\x7f\x7f'
+2025-07-30 11:39:43,503 - INFO - [127.0.0.1] Command : b'cat file.txt'
+2025-07-30 11:39:45,482 - INFO - [127.0.0.1] Command : b'exit'
+2025-07-30 12:33:34,338 - INFO - [+] Connection from 127.0.0.1
+2025-07-30 12:33:44,684 - INFO - [127.0.0.1] Command : b'whoami'
+2025-07-30 12:35:04,635 - INFO - [+] Connection from 127.0.0.1
+2025-07-30 12:35:19,876 - INFO - [127.0.0.1] Command : b'whoami'
+2025-07-30 12:37:05,179 - INFO - [127.0.0.1] Command : b'exit'
+2025-07-30 12:37:08,661 - INFO - [+] Connection from 127.0.0.1
+2025-07-30 12:37:24,820 - INFO - [+] Connection from 127.0.0.1
+2025-07-30 12:37:52,814 - INFO - [+] Connection from 127.0.0.1
+2025-07-30 12:37:59,990 - INFO - [127.0.0.1] Command : b'ls'
+2025-07-30 12:39:11,430 - INFO - [127.0.0.1] Command : b'whoami'
+2025-07-30 12:39:12,868 - INFO - [127.0.0.1] Command : b'help'
+2025-07-30 12:39:27,900 - INFO - [127.0.0.1] Command : b'help'
+2025-07-30 12:39:30,500 - INFO - [127.0.0.1] Command : b'pwd'
+2025-07-30 12:39:33,855 - INFO - [127.0.0.1] Command : b'send'
+2025-07-30 12:39:37,003 - INFO - [127.0.0.1] Command : b'send file'
+2025-07-30 12:39:42,840 - INFO - [127.0.0.1] Command : b'cel\x7f\x7fc'
+2025-07-30 12:39:45,806 - INFO - [127.0.0.1] Command : b'c\x7f\x7f'
+2025-07-30 12:39:53,367 - INFO - [127.0.0.1] Command : b'python3 exploit.py'
+2025-07-30 12:39:55,635 - INFO - [127.0.0.1] Command : b'exit'
