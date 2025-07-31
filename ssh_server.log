@@ -23,3 +23,23 @@
 2025-07-30 12:39:45,806 - INFO - [127.0.0.1] Command : b'c\x7f\x7f'
 2025-07-30 12:39:53,367 - INFO - [127.0.0.1] Command : b'python3 exploit.py'
 2025-07-30 12:39:55,635 - INFO - [127.0.0.1] Command : b'exit'
+2025-07-30 12:54:29,640 - INFO - [+] Connection from 127.0.0.1
+2025-07-30 12:54:46,607 - INFO - [127.0.0.1] Command : b'./pyht\x7f\x7fton.py'
+2025-07-30 12:54:52,454 - INFO - [127.0.0.1] Command : b'./malware.py'
+2025-07-30 12:54:54,442 - INFO - [127.0.0.1] Command : b'exit'
+2025-07-31 12:13:02,081 - INFO - [+] Connection from 127.0.0.1
+2025-07-31 12:13:03,204 - INFO - [+] Connection from 127.0.0.1
+2025-07-31 12:13:08,273 - INFO - [+] Connection from 127.0.0.1
+2025-07-31 20:11:40,395 - INFO - [+] Connection from 127.0.0.1
+2025-07-31 20:11:50,122 - INFO - [127.0.0.1] Command : b'pwd'
+2025-07-31 20:11:53,025 - INFO - [127.0.0.1] Command : b'whoami'
+2025-07-31 20:11:56,462 - INFO - [127.0.0.1] Command : b'wxit\x7f\x7f\x7f\x7f'
+2025-07-31 20:11:58,226 - INFO - [127.0.0.1] Command : b'exit'
+2025-07-31 20:15:10,882 - INFO - [+] Connection from 127.0.0.1
+2025-07-31 20:15:11,930 - INFO - [+] Connection from 127.0.0.1
+2025-07-31 20:16:20,892 - INFO - [+] Connection from 127.0.0.1
+2025-07-31 20:17:41,387 - INFO - [+] Connection from 127.0.0.1
+2025-07-31 20:17:42,437 - INFO - [+] Connection from 127.0.0.1
+2025-07-31 20:17:47,460 - INFO - [+] Connection from 127.0.0.1
+2025-07-31 20:18:02,310 - INFO - [+] Connection from 127.0.0.1
+2025-07-31 20:18:03,902 - INFO - [+] Connection from 127.0.0.1
