@@ -75,18 +75,19 @@ Future improvements may include adding alert systems, real-time dashboards, or i
 
 ## How to work with it?
 
-<>git clone repo
+`git clone https://github.com/Maaamouni/honeypot.git`
+`cd honeypot`
 
-for web honeypot:
-python web.py
+#### For web honeypot
+`python web.py`
 
 <img width="512" height="578" alt="login" src="https://github.com/user-attachments/assets/c8ace7ac-42d7-40da-9e24-aac53d05c031" />
 
-for ssh honeypot:
-python ssh.py
+### For ssh honeypot:
+`python ssh.py`
 
-then, with your cli :
-ssh -p 2223 otman@127.0.0.1
+#### In you CLI :
+`ssh -p 2223 otman@127.0.0.1`
 
 <img width="1142" height="425" alt="CLI" src="https://github.com/user-attachments/assets/1522127a-863f-442b-895f-58b0a88eb956" />
 
