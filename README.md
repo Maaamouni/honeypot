@@ -53,13 +53,29 @@ This realistic behavior increases the likelihood of interaction from malicious a
 
 Logging is the **first component** to be implemented in any honeypot, as it's the core for data collection and analysis.
 
-#### SSH Server
+#### 2️⃣ SSH Server
 
 * We use paramiko library to build a SSH server
-* Attempted usernames and passwords
-* Uploaded files or download attempts
-* Executed commands
 
+How SSH Server works?
+
+* Generate a server host key for the server to identify itself to clients (used in exchange)
+* Handle authnetication, accept session channels and allows shell request
+
+### 3️⃣ Client Handle
+
+* Creates a Transport object from the raw TCP socket
+* What happend: get the IP adress -> save it in the log file -> create a paramiko transport object 
+
+### 4️⃣ Argument parser
+
+* From the `command.py`:
+* run: `python command.py --ip <ip adress> -p <password> --web` or `python command.py --ip <ip adress> -p <password> --ssh`
+
+### 5️⃣ Web Honeypot
+
+* Login HTML/CSS webpage that looks real but its a trap for attackers to simulate their attacks (web exploitation ..)
+* We use Flask to log attacker input and ip adress
 ---
 
 ## 🎯 Project Scope
@@ -95,7 +111,7 @@ Future improvements may include adding alert systems, real-time dashboards, or i
 ## ✅ Status
 
 > This project is currently under active development.
-> Next steps include improving emulated shell behavior and expanding protocol support.
+> The best is yet to come.
 
 ---
 
