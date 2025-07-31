@@ -44,4 +44,4 @@ def run_web(port=5000, username='outhmane', password='password'):
 
     return run_web_honeypot
 
-
+run_web(port=5000, username='outhmane', password='password')
